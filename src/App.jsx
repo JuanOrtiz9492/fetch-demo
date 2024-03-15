@@ -16,14 +16,29 @@ function App() {
   const [pokeList, setPokeList] = useState([])
   const [selectedPoke, setSelectedPoke] = useState({})
   const [page, setPage] = useState(0);
+  const [pokesCount, setPokesCount] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
   const [isDarkMode, setIsDarkMode] = useState(false)
+
+  // poner maximo de pokemones para definir el total de pages
   useEffect(()=>{
     const fetchData = async ()=> {
       const data = await axiosInstance.get('/pokemon?limit=6&offset=0');
-      setPokeList(data.data.results)
+      setPokesCount(data.data.count)
+      setTotalPages((pokesCount/6)-1)
     }
     fetchData()
   },[])
+  // cada que se modifique page, para cambiar correctamente
+  useEffect(()=>{
+    const fetchData = async ()=> {
+      const data = await axiosInstance.get(`/pokemon?limit=6&offset=${page*6}`);
+      setPokeList(data.data.results)
+    }
+    fetchData()
+    console.log(page);
+  },[page])
+
 
   const getInfo = async (url)=> {
     const data = await axiosInstance.get(url)
@@ -38,17 +53,21 @@ function App() {
       }
     })
   }
+
   const onNextPage = async()=> {
-    setPage(page + 1);
-    const data = await axiosInstance.get(`/pokemon?limit=6&offset=${page}`);
-    setPokeList(data.data.results)
+    // avanzar page solo si es menor al limite de pages 
+    if (page<totalPages) {
+      setPage(page + 1);
+    }
   }
   const onPrevPage = async()=> {
-    setPage(page - 1);
-    const data = await axiosInstance.get(`/pokemon?limit=6&offset=${page}`);
-    setPokeList(data.data.results)
-  
+    // retroceder page solo si la actual es mayor a 0
+    if (page>0) {
+      setPage(page - 1);
+    }
   }
+
+
   return (
     <div className={`flex flex-col w-full h-screen items-center ${isDarkMode ? 'bg-gray-800' : 'bg-white'} p-8`}>
       <button className='ml-auto' onClick={()=> setIsDarkMode(!isDarkMode)}>
