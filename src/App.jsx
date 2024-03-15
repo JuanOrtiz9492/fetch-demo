@@ -16,7 +16,6 @@ function App() {
   const [pokeList, setPokeList] = useState([])
   const [selectedPoke, setSelectedPoke] = useState({})
   const [page, setPage] = useState(0);
-  const [pokesCount, setPokesCount] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [isDarkMode, setIsDarkMode] = useState(false)
 
@@ -24,8 +23,7 @@ function App() {
   useEffect(()=>{
     const fetchData = async ()=> {
       const data = await axiosInstance.get('/pokemon?limit=6&offset=0');
-      setPokesCount(data.data.count)
-      setTotalPages((pokesCount/6)-1)
+      setTotalPages((data.data.count / 6) - 1)
     }
     fetchData()
   },[])
@@ -37,6 +35,7 @@ function App() {
     }
     fetchData()
     console.log(page);
+    console.log(totalPages);
   },[page])
 
 
