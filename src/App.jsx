@@ -18,6 +18,7 @@ function App() {
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [isDarkMode, setIsDarkMode] = useState(false)
+  const [pokeImg, setPokeImg] = useState([])
 
   // poner maximo de pokemones para definir el total de pages
   useEffect(()=>{
@@ -34,20 +35,32 @@ function App() {
       setPokeList(data.data.results)
     }
     fetchData()
-    console.log(page);
-    console.log(totalPages);
   },[page])
-
+  // Cada que se modifique la pokeList asignar pokeImg
+  useEffect(()=>{
+    const fetchImagenes = async ()=> {
+      const pokeImg = await
+      Promise.all(
+        pokeList.map(async(pokemon) => {
+          const response = await  axiosInstance.get(pokemon.url);
+          return response.data.sprites.front_default
+        })
+      );
+      setPokeImg(pokeImg)
+      setPokeList(data.data.results)
+    }
+    fetchImagenes()
+  },[pokeList]);
 
   const getInfo = async (url)=> {
     const data = await axiosInstance.get(url)
     setSelectedPoke({img: data.data.sprites.front_default, stats:data.data.stats})
   }
   const getPokemonList = ()=> {
-    return pokeList.map((pokemon)=>{
+    return pokeList.map((pokemon, img)=>{
       return {
         name: pokemon.name,
-        img: '/whos.jpg',
+        img: pokeImg[img],
         onClick: ()=> getInfo(pokemon.url)
       }
     })
