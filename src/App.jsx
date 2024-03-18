@@ -34,8 +34,7 @@ function App() {
     return pokeList.map((pokemon) => {
       return {
         name: pokemon.name,
-        img: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.url.split('/')[6]}.png`,
-        onClick: () => getInfo(pokemon.url)
+        img: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.url.split('/')[6]}.png`,onClick: () => getInfo(pokemon.url)
       };
     });
   };
