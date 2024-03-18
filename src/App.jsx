@@ -17,37 +17,68 @@ function App() {
   const [selectedPoke, setSelectedPoke] = useState({})
   const [page, setPage] = useState(0);
   const [isDarkMode, setIsDarkMode] = useState(false)
+  const [imagenes, setimagenes] = useState([]);
+
+
+
+  useEffect(()=>{
+    const fetchImagenes = async ()=> {
+      const imagenes = await
+      Promise.all(
+        pokeList.map(async(pokemon) => {
+          const response = await  axiosInstance.get(pokemon.url);
+          return response.data.sprites.front_default
+        })
+      );
+      setimagenes(imagenes)
+      setPokeList(data.data.results)
+      console.log(data)
+    }
+    fetchImagenes()
+  },[pokeList]);
+
+
+  
   useEffect(()=>{
     const fetchData = async ()=> {
-      const data = await axiosInstance.get('/pokemon?limit=6&offset=0');
+      const data = await axiosInstance.get(`/pokemon?limit=6&offset=${page * 6}`);
       setPokeList(data.data.results)
+      console.log(data)
     }
     fetchData()
-  },[])
+  },[page])
+
+  
 
   const getInfo = async (url)=> {
     const data = await axiosInstance.get(url)
     setSelectedPoke({img: data.data.sprites.front_default, stats:data.data.stats})
+    console.log(data)
   }
   const getPokemonList = ()=> {
-    return pokeList.map((pokemon)=>{
+    return pokeList.map((pokemon,main)=>{
       return {
         name: pokemon.name,
-        img: '/whos.jpg',
+        img: imagenes[main],
         onClick: ()=> getInfo(pokemon.url)
       }
     })
   }
   const onNextPage = async()=> {
-    setPage(page + 1);
-    const data = await axiosInstance.get(`/pokemon?limit=6&offset=${page}`);
-    setPokeList(data.data.results)
-  }
+    const nextPage = page + 1; 
+    const data = await axiosInstance.get(`/pokemon?limit=6&offset=${nextPage * 6}`);
+    setPokeList(data.data.results);
+    setPage(nextPage);
+}
+
+
   const onPrevPage = async()=> {
-    setPage(page - 1);
-    const data = await axiosInstance.get(`/pokemon?limit=6&offset=${page}`);
-    setPokeList(data.data.results)
-  
+    if(page > 0){
+      const prevPage = page - 1;
+      const data = await axiosInstance.get(`/pokemon?limit=6&offset=${prevPage * 6}`);
+      setPokeList(data.data.results);
+      setPage(prevPage)
+    }
   }
   return (
     <div className={`flex flex-col w-full h-screen items-center ${isDarkMode ? 'bg-gray-800' : 'bg-white'} p-8`}>
@@ -64,3 +95,4 @@ function App() {
 }
 
 export default App
+
